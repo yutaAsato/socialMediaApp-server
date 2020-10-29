@@ -9,7 +9,7 @@ const db = knex({
   client: "pg",
   connection: {
     host: "127.0.0.1",
-    user: "postgres",
+    user: "yuta",
     password: "oblivion",
     database: "socialmedia",
   },
@@ -81,6 +81,12 @@ function jwtVerify(req, res, next) {
     return res.sendStatus(403);
   }
 }
+
+//
+app.get("/", (req, res) => {
+  res.send("Server is deployed");
+});
+
 //------------------------
 //IMAGEUPLOAD (express-fileupload)
 app.post("/upload", jwtVerify, handleUpload);
