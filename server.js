@@ -20,10 +20,8 @@ const knex = require("knex");
 const db = knex({
   client: "pg",
   connection: {
-    host: "postgresql-aerodynamic-01585",
-    user: "yuta",
-    password: "oblivion",
-    database: "socialmedia",
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
   },
 });
 
