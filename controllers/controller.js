@@ -6,7 +6,7 @@ const bcrypt = require("bcrypt-nodejs");
 const { validateLoginData, validateRegisterData } = require("./validators");
 
 //---------------------
-// const Pool = require("pg").Pool;
+const Pool = require("pg").Pool;
 
 //local
 // const pool = new Pool({
@@ -18,21 +18,10 @@ const { validateLoginData, validateRegisterData } = require("./validators");
 // });
 
 //==========HEROKU SETTINGS====================================================================
-let pg = require("pg");
-if (process.env.DATABASE_URL) {
-  pg.defaults.ssl = true;
-}
-
-// include an OR statement if you switch between a local dev db and
-// a remote heroku environment
-
-let connString =
-  process.env.DATABASE_URL ||
-  "postgresql://postgres:password@localhost:localpostgresport/yourlocaldbname";
-const { Pool } = require("pg");
 
 const pool = new Pool({
-  connectionString: connString,
+  connectionString: process.env.DATABASE_URL,
+  ssl: true,
 });
 
 //========================================================================================
