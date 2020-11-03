@@ -18,10 +18,10 @@ const Pool = require("pg").Pool;
 // });
 
 //==========HEROKU SETTINGS====================================================================
+//'ssl: true' was preventing connection to databae for some reason, removing fixed
 
 const pool = new Pool({
-  connectionString:
-    "postgres://ojmikibxjxcjwu:61b5a9712b9c3269be82d0c0035542618298cf17cd875c74ef3df5c81f2f5057@ec2-34-233-43-35.compute-1.amazonaws.com:5432/d117504b9r25fg",
+  connectionString: process.env.DATABASE_URL,
 });
 
 //========================================================================================
