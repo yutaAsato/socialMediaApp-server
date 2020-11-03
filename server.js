@@ -17,13 +17,13 @@ const knex = require("knex");
 // });
 
 //heroku postgres
-const db = knex({
-  client: "pg",
-  connection: {
-    connectionString: process.env.DATABASE_URL,
-    ssl: true,
-  },
-});
+// const db = knex({
+//   client: "pg",
+//   connection: {
+//     connectionString: process.env.DATABASE_URL,
+//     ssl: true,
+//   },
+// });
 
 const cors = require("cors");
 const { json } = require("express");
