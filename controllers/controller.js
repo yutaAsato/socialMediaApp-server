@@ -8,12 +8,21 @@ const { validateLoginData, validateRegisterData } = require("./validators");
 //---------------------
 const Pool = require("pg").Pool;
 
+//local
+// const pool = new Pool({
+//   host: "127.0.0.1",
+//   user: "postgres",
+//   password: "oblivion",
+//   port: 5432,
+//   database: "socialmedia",
+// });
+
 const pool = new Pool({
-  host: "127.0.0.1",
-  user: "postgres",
-  password: "oblivion",
-  port: 5432,
-  database: "socialmedia",
+  client: "pg",
+  connection: {
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
+  },
 });
 
 //IMAGEUPLOAD - 'req.files' is from express-fileupload, image is name of file.
