@@ -1,3 +1,5 @@
+const { db, pool } = require("./admin");
+
 const express = require("express");
 
 //express-fileupload (for uploading images to postgres)
@@ -28,10 +30,6 @@ const knex = require("knex");
 const cors = require("cors");
 const { json } = require("express");
 const app = require("express")();
-
-// //bodyparser
-// app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(bodyParser.json());
 
 app.use(express.json());
 
@@ -67,6 +65,8 @@ const {
   handleGetLikes,
   handleNotifications,
   handleMarkNotifications,
+  deleteNotifications,
+  getAllUsers,
 } = require("./controllers/controller");
 
 //----------------------------------------------------------
@@ -174,40 +174,12 @@ app.post("/notifications", jwtVerify, handleNotifications);
 //MarkNotifications
 app.post("/markNotifications", jwtVerify, handleMarkNotifications);
 
+//deleteNotification
+app.post("/deleteNotification", jwtVerify, deleteNotifications);
+
+//getAllUsers
+app.get("/allUsers", jwtVerify, getAllUsers);
 //------dev-----------------------------------------------------------
-
-//first find who ryu is following, then map through those ids to get the usernames
-// db.select("*")
-//   .from("relationships")
-//   .where("follower_id", "=", "2")
-//   .then((res) =>
-//     res.map((x) => {
-//       return db
-//         .select("username")
-//         .from("users")
-//         .where("user_id", "=", x.followed_id)
-//         .then((users) => console.log(users));
-//     })
-//   );
-
-//first finds who ryu is following, then gets tweets from the users he if following
-// db.select("*")
-//   .from("relationships")
-//   .where("follower_id", "=", "2")
-//   .then((res) =>
-//     res.map((x) => {
-//       return db
-//         .select("*")
-//         .from("tweets")
-//         .where("user_id", "=", x.followed_id)
-//         .then((users) => console.log(users));
-//     })
-//   );
-
-// db.select("*")
-//   .from("tweets")
-//   .where("user_id", "=", "2")
-//   .then((res) => console.log(res));
 
 //listen =======================================
 app.listen(process.env.PORT || 3000, () => {

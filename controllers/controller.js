@@ -1,3 +1,5 @@
+const { db, pool } = require("../admin");
+
 const jwt = require("jsonwebtoken");
 
 const bcrypt = require("bcrypt-nodejs");
@@ -6,9 +8,9 @@ const bcrypt = require("bcrypt-nodejs");
 const { validateLoginData, validateRegisterData } = require("./validators");
 
 //---------------------
-const Pool = require("pg").Pool;
+// const Pool = require("pg").Pool;
 
-//local
+// local;
 // const pool = new Pool({
 //   host: "127.0.0.1",
 //   user: "postgres",
@@ -20,9 +22,9 @@ const Pool = require("pg").Pool;
 //==========HEROKU SETTINGS====================================================================
 //'ssl: true' was preventing connection to databae for some reason, removing fixed
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+// const pool = new Pool({
+//   connectionString: process.env.DATABASE_URL,
+// });
 
 //========================================================================================
 
@@ -861,6 +863,44 @@ exports.handleMarkNotifications = async (req, res) => {
     // console.log(output.rows);
 
     res.json("updated Notifications");
+  } catch {
+    console.error(error.message);
+    res.status(400).json("something went wrong");
+  }
+};
+
+//deleteNotifications
+exports.deleteNotifications = async (req, res) => {
+  try {
+    var decoded = jwt.verify(req.token, "secretKey");
+    const { email, password, user_id } = decoded.jwtUser;
+
+    //grab loggedin user user_id
+    let userId = await pool.query(
+      "select user_id from users where email = $1",
+      [email]
+    );
+
+    const id = req.body.tweetId;
+
+    await pool.query("delete from notifications where tweetid = $1", [id]);
+
+    res.json("deleted Notification");
+  } catch {
+    console.error(error.message);
+    res.status(400).json("something went wrong");
+  }
+};
+
+//getAllUsers
+exports.getAllUsers = async (req, res) => {
+  try {
+    var decoded = jwt.verify(req.token, "secretKey");
+    const { email, password, user_id } = decoded.jwtUser;
+
+    const allUsers = await pool.query("select * from users");
+
+    res.json(allUsers.rows);
   } catch {
     console.error(error.message);
     res.status(400).json("something went wrong");
