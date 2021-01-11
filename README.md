@@ -12,10 +12,6 @@ REST API server for the socialMediaApp-client.
 * **Method:**
 
   `GET`
-  
-*  **URL Params**
-
-   **Required:**
  
 
 * **Data Params**
