@@ -3,7 +3,7 @@ REST API server for the socialMediaApp-client built using node.js/express.js. Au
 
 **EXAMPLE - user**
 ----
-  Returns json data about a single user.
+  Returns json data about the logged user.
 
 * **URL**
 
