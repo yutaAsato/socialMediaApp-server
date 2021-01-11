@@ -55,7 +55,6 @@ async function client(
     },
     ...customConfig,
   };
-
   return window
     .fetch(`${apiURL}/${endpoint}`, config)
     .then(async (response) => {
