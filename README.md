@@ -1,15 +1,13 @@
 # REST API socialMediaApp-server
 REST API server for the socialMediaApp-client.
 
-## Example
-
-**Show User**
+**EXAMPLE - getUser**
 ----
   Returns json data about a single user.
 
 * **URL**
 
-  /users/:id
+  /user
 
 * **Method:**
 
@@ -19,7 +17,6 @@ REST API server for the socialMediaApp-client.
 
    **Required:**
  
-   `id=[integer]`
 
 * **Data Params**
 
@@ -28,7 +25,7 @@ REST API server for the socialMediaApp-client.
 * **Success Response:**
 
   * **Code:** 200 <br />
-    **Content:** `{ id : 12, name : "Michael Bloom" }`
+    **Content:** `{ notifications:[,..], relationships: [,..], user:{username: sagat, location: thailand, bio: ...} }`
  
 * **Error Response:**
 
@@ -38,7 +35,7 @@ REST API server for the socialMediaApp-client.
   OR
 
   * **Code:** 401 UNAUTHORIZED <br />
-    **Content:** `{ error : "You are unauthorized to make this request." }`
+    **Content:** `{ error : "Wrong Credentials" }`
 
 * **Sample Call:**
 
