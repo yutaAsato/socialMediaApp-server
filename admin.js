@@ -1,3 +1,6 @@
+//import from .env file password varibale.
+require("dotenv").config();
+
 const knex = require("knex");
 const Pool = require("pg").Pool;
 
@@ -10,7 +13,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     connection: {
       host: "127.0.0.1",
       user: "yuta",
-      password: "oblivion",
+      password: process.env.PASSWORD,
       database: "socialmedia",
     },
   });
