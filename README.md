@@ -1,4 +1,4 @@
-# REST API socialMediaApp-server
+# REST API Social Media Application
 REST API server for the socialMediaApp-client built using node.js/express.js. Authentication handled using JWT (JSON web token) and password hashing with Bcrypt. The API queries a PostgreSQL database using node-postgres modules, including a connection pool, and responds to the client with JSON data.
 
 **EXAMPLE - user**
