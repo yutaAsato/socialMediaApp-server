@@ -1,4 +1,3 @@
-//import from .env file password varibale.
 require("dotenv").config();
 
 const knex = require("knex");
@@ -21,7 +20,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
   pool = new Pool({
     host: "127.0.0.1",
     user: "postgres",
-    password: "oblivion",
+    password: process.env.PASSWORD,
     port: 5432,
     database: "socialmedia",
   });
