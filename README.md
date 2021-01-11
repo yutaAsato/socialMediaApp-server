@@ -41,36 +41,11 @@ REST API server for the socialMediaApp-client.
 * **Sample Call:**
 
   ```javascript
-async function client(
-  endpoint,
-  { data, token, headers: customHeaders, ...customConfig } = {}
-) {
-  const config = {
-    method: data ? "POST" : "GET",
-    body: data ? JSON.stringify(data) : undefined,
-    headers: {
-      Authorization: token ? token : undefined,
-      "Content-Type": data ? "application/json" : undefined,
-      ...customHeaders,
-    },
-    ...customConfig,
-  };
-  return window
-    .fetch(`${apiURL}/${endpoint}`, config)
-    .then(async (response) => {
-      if (response.status === 401) {
-        queryCache.clear();
-        // await useHandlelogOut();
-        // refresh the page for them
-        window.location.assign(window.location);
-        return Promise.reject({ message: "Please re-authenticate." });
-      }
-      const data = await response.json();
-      if (response.ok) {
-        return data;
-      } else {
-        return Promise.reject(data);
+    $.ajax({
+      url: "/users/1",
+      dataType: "json",
+      type : "GET",
+      success : function(r) {
+        console.log(r);
       }
     });
-}
-  ```
