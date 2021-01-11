@@ -1,4 +1,4 @@
-# socialMediaApp-server
+# REST API socialMediaApp-server
 REST API server for the socialMediaApp-client.
 
 **Show User**
