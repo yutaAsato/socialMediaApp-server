@@ -57,8 +57,6 @@ REST API server for the socialMediaApp-client.
     .then(async (response) => {
       if (response.status === 401) {
         queryCache.clear();
-        // await useHandlelogOut();
-        // refresh the page for them
         window.location.assign(window.location);
         return Promise.reject({ message: "Please re-authenticate." });
       }
