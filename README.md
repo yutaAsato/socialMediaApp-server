@@ -1,6 +1,8 @@
 # REST API socialMediaApp-server
 REST API server for the socialMediaApp-client.
 
+## Example
+
 **Show User**
 ----
   Returns json data about a single user.
