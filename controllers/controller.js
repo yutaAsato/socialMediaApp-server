@@ -7,26 +7,7 @@ const bcrypt = require("bcrypt-nodejs");
 //validator imports
 const { validateLoginData, validateRegisterData } = require("./validators");
 
-//---------------------
-// const Pool = require("pg").Pool;
 
-// local;
-// const pool = new Pool({
-//   host: "127.0.0.1",
-//   user: "postgres",
-//   password: "oblivion",
-//   port: 5432,
-//   database: "socialmedia",
-// });
-
-//==========HEROKU SETTINGS====================================================================
-//'ssl: true' was preventing connection to databae for some reason, removing fixed
-
-// const pool = new Pool({
-//   connectionString: process.env.DATABASE_URL,
-// });
-
-//========================================================================================
 
 //IMAGEUPLOAD - 'req.files' is from express-fileupload, image is name of file.
 exports.handleUpload = async (req, res) => {
