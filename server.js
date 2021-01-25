@@ -7,25 +7,6 @@ const fileUpload = require("express-fileupload");
 
 const knex = require("knex");
 
-//local
-// const db = knex({
-//   client: "pg",
-//   connection: {
-//     host: "127.0.0.1",
-//     user: "yuta",
-//     password: "oblivion",
-//     database: "socialmedia",
-//   },
-// });
-
-//heroku postgres
-// const db = knex({
-//   client: "pg",
-//   connection: {
-//     connectionString: process.env.DATABASE_URL,
-//     ssl: true,
-//   },
-// });
 
 const cors = require("cors");
 const { json } = require("express");
