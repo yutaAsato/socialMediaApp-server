@@ -173,8 +173,12 @@ exports.handleLogin = async (req, res) => {
 
     //create jwt and assign the login data to token.
     let token;
+
+    console.log("isVaild", isValid);
     if (isValid) {
       token = jwt.sign({ jwtUser: req.body }, "secretKey");
+    } else {
+      throw "wrong credentials";
     }
 
     console.log("logged in");
