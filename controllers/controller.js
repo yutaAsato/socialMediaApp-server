@@ -99,6 +99,7 @@ exports.handleRegister = async (req, res) => {
   try {
     const { username, email, password, confirmPassword } = req.body;
 
+    let token;
     //validator check------------------
     const user = {
       email: email,
