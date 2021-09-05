@@ -7,13 +7,13 @@ const fileUpload = require("express-fileupload");
 
 const knex = require("knex");
 
-// const cors = require("cors");
+const cors = require("cors");
 const { json } = require("express");
 const app = require("express")();
 
 app.use(express.json());
 
-// app.use(cors());
+app.use(cors());
 
 // express-fileupload
 app.use(fileUpload());

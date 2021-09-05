@@ -9,6 +9,8 @@ let db;
 console.log("env", process.env.NODE_ENV);
 
 if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+  console.log("development mode");
+
   // db = knex({
   //   client: "pg",
   //   connection: {
@@ -27,15 +29,16 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     database: "socialmedia",
   });
 
-  console.log("development mode");
 } else if (process.env.NODE_ENV === "production") {
+  console.log("production");
+
+
   pool = new Pool({
     // connectionString: process.env.DATABASE_URL,
     connectionString: 'postgres://wdjjyskcleyolm:31ec7208768c4f238525c5ebc7f8ab45d154ca22dfd5f5400f58702bb9b95a70@ec2-54-236-137-173.compute-1.amazonaws.com:5432/d9i94tomfsecqi
     '
   });
 
-  console.log("production");
 }
 
 module.exports = { db, pool };
