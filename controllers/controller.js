@@ -7,8 +7,6 @@ const bcrypt = require("bcrypt-nodejs");
 //validator imports
 const { validateLoginData, validateRegisterData } = require("./validators");
 
-
-
 //IMAGEUPLOAD - 'req.files' is from express-fileupload, image is name of file.
 exports.handleUpload = async (req, res) => {
   try {
@@ -120,7 +118,7 @@ exports.handleRegister = async (req, res) => {
     );
 
     token = jwt.sign({ jwtUser: req.body }, "secretKey");
-    console.log("registered users");
+    console.log("registered user");
     res.json(token);
   } catch (error) {
     console.error(error.message);
