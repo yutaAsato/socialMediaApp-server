@@ -6,16 +6,18 @@ const Pool = require("pg").Pool;
 let pool;
 let db;
 
+console.log("env", process.env.NODE_ENV);
+
 if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
-  db = knex({
-    client: "pg",
-    connection: {
-      host: "127.0.0.1",
-      user: "yuta",
-      password: process.env.PASSWORD,
-      database: "socialmedia",
-    },
-  });
+  // db = knex({
+  //   client: "pg",
+  //   connection: {
+  //     host: "127.0.0.1",
+  //     user: "yuta",
+  //     password: process.env.PASSWORD,
+  //     database: "socialmedia",
+  //   },
+  // });
 
   pool = new Pool({
     host: "127.0.0.1",
@@ -26,7 +28,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
   });
 
   console.log("development mode");
-} else {
+} else if (process.env.NODE_ENV === "production") {
   pool = new Pool({
     connectionString: process.env.DATABASE_URL,
   });
