@@ -30,6 +30,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
   pool = new Pool({
     connectionString:
       "postgres://wdjjyskcleyolm:31ec7208768c4f238525c5ebc7f8ab45d154ca22dfd5f5400f58702bb9b95a70@ec2-54-236-137-173.compute-1.amazonaws.com:5432/d9i94tomfsecqi",
+    ssl: true,
   });
 }
 
