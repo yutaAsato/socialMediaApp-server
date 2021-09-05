@@ -8,36 +8,34 @@ let db;
 
 console.log("env", process.env.NODE_ENV);
 
-pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
+if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+  // db = knex({
+  //   client: "pg",
+  //   connection: {
+  //     host: "127.0.0.1",
+  //     user: "yuta",
+  //     password: process.env.PASSWORD,
+  //     database: "socialmedia",
+  //   },
+  // });
 
-// if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
-//   // db = knex({
-//   //   client: "pg",
-//   //   connection: {
-//   //     host: "127.0.0.1",
-//   //     user: "yuta",
-//   //     password: process.env.PASSWORD,
-//   //     database: "socialmedia",
-//   //   },
-//   // });
+  pool = new Pool({
+    host: "127.0.0.1",
+    user: "postgres",
+    password: process.env.PASSWORD,
+    port: 5432,
+    database: "socialmedia",
+  });
 
-//   pool = new Pool({
-//     host: "127.0.0.1",
-//     user: "postgres",
-//     password: process.env.PASSWORD,
-//     port: 5432,
-//     database: "socialmedia",
-//   });
+  console.log("development mode");
+} else if (process.env.NODE_ENV === "production") {
+  pool = new Pool({
+    // connectionString: process.env.DATABASE_URL,
+    connectionString: 'postgres://wdjjyskcleyolm:31ec7208768c4f238525c5ebc7f8ab45d154ca22dfd5f5400f58702bb9b95a70@ec2-54-236-137-173.compute-1.amazonaws.com:5432/d9i94tomfsecqi
+    '
+  });
 
-//   console.log("development mode");
-// } else if (NODE_ENV === "production") {
-//   pool = new Pool({
-//     connectionString: process.env.DATABASE_URL,
-//   });
-
-//   console.log("production");
-// }
+  console.log("production");
+}
 
 module.exports = { db, pool };
