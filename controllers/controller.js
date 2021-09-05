@@ -1,4 +1,4 @@
-const { db, pool } = require("../admin");
+const { db, client } = require("../admin");
 
 const jwt = require("jsonwebtoken");
 
@@ -14,19 +14,19 @@ exports.handleUpload = async (req, res) => {
     const { email, password } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
     //grab loggedin username user_id
-    let username = await pool.query(
+    let username = await client.query(
       "select username from users where email = $1",
       [email]
     );
 
     //check if user already has profile pic
-    let pictureExists = await pool.query(
+    let pictureExists = await client.query(
       "select * from profilePicture where username = $1",
       [username.rows[0].username]
     );
@@ -35,10 +35,10 @@ exports.handleUpload = async (req, res) => {
 
     //checks if pictureExists is less than 1 is false, if so delete pic then upload new img. if true just upload img.
     if (!pictureExists.length < 1) {
-      await pool.query("delete from profilePicture where username = $1", [
+      await client.query("delete from profilePicture where username = $1", [
         username.rows[0].username,
       ]);
-      await pool.query(
+      await client.query(
         "insert into profilePicture ( name, username, user_id, img) values ($1, $2, $3, $4)",
         [
           req.files.image.name,
@@ -48,7 +48,7 @@ exports.handleUpload = async (req, res) => {
         ]
       );
     } else {
-      await pool.query(
+      await client.query(
         "insert into profilePicture ( name, username, user_id, img) values ($1, $2, $3, $4)",
         [
           req.files.image.name,
@@ -59,7 +59,7 @@ exports.handleUpload = async (req, res) => {
       );
     }
 
-    let getImage = await pool.query(
+    let getImage = await client.query(
       "select * from profilePicture where username = $1",
       [username.rows[0].username]
     );
@@ -80,7 +80,7 @@ exports.handleGetUpload = async (req, res) => {
 
     let username = req.params.username;
 
-    let getImage = await pool.query(
+    let getImage = await client.query(
       "select * from profilePicture where username = $1",
       [username]
     );
@@ -112,7 +112,7 @@ exports.handleRegister = async (req, res) => {
     //bycrpt
     const hash = bcrypt.hashSync(password);
 
-    const userTable = await pool.query(
+    const userTable = await client.query(
       "insert into users (username, password, email, created_at, update_at) values ($1, $2, $3, $4, $5) returning *",
       [username, hash, email, new Date(), new Date()]
     );
@@ -144,9 +144,10 @@ exports.handleLogin = async (req, res) => {
     const { valid, errors } = validateLoginData(user);
     if (!valid) return res.status(400).json({ errors });
 
-    const loginInfo = await pool.query("select * from users where email = $1", [
-      email,
-    ]);
+    const loginInfo = await client.query(
+      "select * from users where email = $1",
+      [email]
+    );
 
     const isValid = bcrypt.compareSync(password, loginInfo.rows[0].password);
 
@@ -180,28 +181,28 @@ exports.handleUser = async (req, res) => {
     const { email, name, password } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
-    let username = await pool.query(
+    let username = await client.query(
       "select username from users where email = $1",
       [email]
     );
 
-    let verifiedUser = await pool.query(
+    let verifiedUser = await client.query(
       "select * from users where email = $1",
       [email]
     );
 
-    let relationships = await pool.query(
+    let relationships = await client.query(
       "select * from relationships where follower_id = $1 or followed_id =$2",
       [userId.rows[0].user_id, userId.rows[0].user_id]
     );
 
     //get notifications
-    let notifications = await pool.query(
+    let notifications = await client.query(
       "select * from notifications where recipient = $1 order by created_at asc",
       [username.rows[0].username]
     );
@@ -227,12 +228,12 @@ exports.handleUserTweets = async (req, res) => {
     const { email, name, password } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
-    let userTweets = await pool.query(
+    let userTweets = await client.query(
       "select tweets.*, count(distinct comments.*) as commentcount, count(distinct likes.*) as likescount from tweets left join comments on tweets.id = comments.tweetid left join likes on tweets.id = likes.tweetid where tweets.user_id = $1 group by tweets.id",
       [userId.rows[0].user_id]
     );
@@ -253,13 +254,13 @@ exports.handleFollowTweets = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
     //grab list of followed_id, who are users the logged user is following
-    let followTweets = await pool.query(
+    let followTweets = await client.query(
       "select * from relationships where follower_id = $1",
       [userId.rows[0].user_id]
     );
@@ -268,7 +269,7 @@ exports.handleFollowTweets = async (req, res) => {
     // Promise.all needs to wrap .map as it returns and array of promises
     let filterfollowTweets = await Promise.all(
       followTweets.rows.map((data) => {
-        return pool.query(
+        return client.query(
           "select tweets.*, count(distinct comments.*) as commentcount, count(distinct likes.*) as likescount from tweets  left join comments on tweets.id = comments.tweetid left join likes on tweets.id = likes.tweetid where tweets.user_id = $1 group by tweets.id ",
           [data.followed_id]
         );
@@ -285,7 +286,7 @@ exports.handleFollowTweets = async (req, res) => {
     //liked tweets
     const liked = await Promise.all(
       outputTweets.map((x) => {
-        return pool.query(
+        return client.query(
           "select * from likes where user_id = $1 and tweetid = $2",
           [userId.rows[0].user_id, x.id]
         );
@@ -311,7 +312,7 @@ exports.handleSingleTweet = async (req, res) => {
   try {
     const requestedTweetId = req.params.tweetId;
 
-    let tweet = await pool.query("select * from tweets where id = $1", [
+    let tweet = await client.query("select * from tweets where id = $1", [
       requestedTweetId,
     ]);
 
@@ -336,17 +337,17 @@ exports.handlePostTweet = async (req, res) => {
     const notOnHomePage = urlUser ? true : false;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
-    let username = await pool.query(
+    let username = await client.query(
       "select username from users where email = $1",
       [email]
     );
 
-    let postTweet = await pool.query(
+    let postTweet = await client.query(
       "insert into tweets(content, user_id, username, created_at, update_at) values ($1,$2,$3,$4, $5)",
       [
         content,
@@ -359,7 +360,7 @@ exports.handlePostTweet = async (req, res) => {
 
     let returnData;
     if (notOnHomePage) {
-      returnData = await pool.query(
+      returnData = await client.query(
         "select * from tweets where username = $1",
         [urlUser]
       );
@@ -381,7 +382,7 @@ exports.handleTweetLike = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
@@ -389,7 +390,7 @@ exports.handleTweetLike = async (req, res) => {
     //tweetid
     const requestedTweetId = req.body.tweetId;
 
-    let likeTweet = await pool.query(
+    let likeTweet = await client.query(
       "insert into likes (tweetid, user_id, created_at) values ($1,$2, $3) ",
       [requestedTweetId, userId.rows[0].user_id, new Date()]
     );
@@ -408,7 +409,7 @@ exports.handleTweetUnlike = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
@@ -419,7 +420,7 @@ exports.handleTweetUnlike = async (req, res) => {
     //check if user has already liked this tweet
 
     //check if like exists from userid in likes matches userid AND tweetId matches requestedtweet id
-    let likeExists = await pool.query(
+    let likeExists = await client.query(
       "select * from likes where user_id = $1 and tweetid = $2",
       [userId.rows[0].user_id, requestedTweetId]
     );
@@ -431,7 +432,7 @@ exports.handleTweetUnlike = async (req, res) => {
     if (!likeExists.rows.length) {
       return res.status(403).json({ error: "Sorry, can't do that" });
     } else {
-      unlikeTweet = await pool.query(
+      unlikeTweet = await client.query(
         "delete from likes where user_id = $1 and tweetid = $2",
         [userId.rows[0].user_id, requestedTweetId]
       );
@@ -451,16 +452,17 @@ exports.handleGetLikes = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
     let tweetId = req.params.tweetId;
 
-    let getLikes = await pool.query("select * from likes where tweetid = $1", [
-      tweetId,
-    ]);
+    let getLikes = await client.query(
+      "select * from likes where tweetid = $1",
+      [tweetId]
+    );
 
     res.json(getLikes.rows);
   } catch {
@@ -478,7 +480,7 @@ exports.handleTweetComment = async (req, res) => {
     const comment = req.body.comment;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
@@ -491,7 +493,7 @@ exports.handleTweetComment = async (req, res) => {
     //tweetusername
     const senderUsername = req.params.senderUsername;
 
-    let commentTweet = await pool.query(
+    let commentTweet = await client.query(
       "insert into comments (tweetid, user_id, comments, created_at, tweetusername, senderusername) values ($1,$2, $3, $4, $5, $6)",
       [
         requestedTweetId,
@@ -517,7 +519,7 @@ exports.handleRelevantComments = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
@@ -525,7 +527,7 @@ exports.handleRelevantComments = async (req, res) => {
     let tweetUser = req.params.tweetUsername;
     let tweetId = req.params.tweetId;
 
-    let getComments = await pool.query(
+    let getComments = await client.query(
       "select * from comments where tweetusername = $1 and tweetid = $2",
       [tweetUser, tweetId]
     );
@@ -544,7 +546,7 @@ exports.handleDeleteTweet = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
@@ -553,7 +555,7 @@ exports.handleDeleteTweet = async (req, res) => {
     const requestedTweetId = req.params.tweetId;
 
     //tweet must be the user's tweet if deleting
-    let requestedTweet = await pool.query(
+    let requestedTweet = await client.query(
       "select * from tweets where id = $1",
       [requestedTweetId]
     );
@@ -563,7 +565,7 @@ exports.handleDeleteTweet = async (req, res) => {
     let deleteTweet;
     if (tweetUserId === userId.rows[0].user_id) {
       console.log(requestedTweetId);
-      deleteTweet = await pool.query("delete from tweets where id = $1", [
+      deleteTweet = await client.query("delete from tweets where id = $1", [
         requestedTweetId,
       ]);
     } else {
@@ -585,7 +587,7 @@ exports.handleFollow = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
@@ -594,7 +596,7 @@ exports.handleFollow = async (req, res) => {
     let toFollowUsername = req.body.toFollowUsername;
 
     //grab id of to be followed user
-    let toFollowId = await pool.query(
+    let toFollowId = await client.query(
       "select * from users where username = $1",
       [toFollowUsername]
     );
@@ -604,7 +606,7 @@ exports.handleFollow = async (req, res) => {
     console.log(toFollowId);
 
     if (toFollowId !== userId.rows[0].user_id) {
-      let followUser = await pool.query(
+      let followUser = await client.query(
         "insert into relationships (follower_id, followed_id, created_at, update_at, followed_username) values ($1,$2,$3,$4, $5)",
         [
           userId.rows[0].user_id,
@@ -618,7 +620,7 @@ exports.handleFollow = async (req, res) => {
       res.status(400).json("can't follow yourself");
     }
 
-    let relationships = await pool.query(
+    let relationships = await client.query(
       "select * from relationships where follower_id = $1 or followed_id =$2",
       [userId.rows[0].user_id, userId.rows[0].user_id]
     );
@@ -637,19 +639,19 @@ exports.handleunFollow = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
     let toUnfollowUsername = req.body.toUnfollowUsername;
 
-    let deleteFollow = await pool.query(
+    let deleteFollow = await client.query(
       "delete from relationships where follower_id = $1 and followed_username = $2",
       [userId.rows[0].user_id, toUnfollowUsername]
     );
 
-    let relationships = await pool.query(
+    let relationships = await client.query(
       "select * from relationships where follower_id = $1 or followed_id =$2",
       [userId.rows[0].user_id, userId.rows[0].user_id]
     );
@@ -669,7 +671,7 @@ exports.handleRelevantUser = async (req, res) => {
 
     let relevantUsername = req.body.relevantUsername;
 
-    let userDetails = await pool.query(
+    let userDetails = await client.query(
       "select * from users where username = $1",
       [relevantUsername]
     );
@@ -689,12 +691,12 @@ exports.handleRelevantTweets = async (req, res) => {
 
     let relevantUsername = req.body.relevantUsername;
 
-    // let relevantTweets = await pool.query(
+    // let relevantTweets = await client.query(
     //   "select * from tweets where username = $1",
     //   [relevantUsername]
     // );
 
-    let relevantTweets = await pool.query(
+    let relevantTweets = await client.query(
       "select tweets.*, count(distinct comments.*) as commentcount, count(distinct likes.*) as likescount from tweets left join comments on tweets.id = comments.tweetid left join likes on tweets.id = likes.tweetid where tweets.username = $1 group by tweets.id",
       [relevantUsername]
     );
@@ -713,7 +715,7 @@ exports.handleEditDetails = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
@@ -722,12 +724,12 @@ exports.handleEditDetails = async (req, res) => {
     let website = req.body.website;
     let location = req.body.location;
 
-    let editDetails = await pool.query(
+    let editDetails = await client.query(
       "update users set bio = $1, website = $2, location = $3 where user_id = $4",
       [bio, website, location, userId.rows[0].user_id]
     );
 
-    let editedUserDetails = await pool.query(
+    let editedUserDetails = await client.query(
       "select * from users where user_id = $1",
       [userId.rows[0].user_id]
     );
@@ -746,12 +748,12 @@ exports.handleRelevantRelationships = async (req, res) => {
   try {
     let relevantUser = req.body.relevantUser;
 
-    let relevantUserId = await pool.query(
+    let relevantUserId = await client.query(
       "select user_id from users where username = $1",
       [relevantUser]
     );
 
-    let findRelationships = await pool.query(
+    let findRelationships = await client.query(
       "select * from relationships where follower_id = $1 or followed_id = $2",
       [relevantUserId.rows[0].user_id, relevantUserId.rows[0].user_id]
     );
@@ -769,7 +771,7 @@ exports.handleWhoToFollow = async (req, res) => {
     var decoded = jwt.verify(req.token, "secretKey");
     const { email, username, password, user_id } = decoded.jwtUser;
     //randomly orders users table then selects first 2,slow but works
-    let randomUser = await pool.query(
+    let randomUser = await client.query(
       "SELECT * FROM users where email != $1 ORDER BY random() LIMIT 2",
       [email]
     );
@@ -788,7 +790,7 @@ exports.handleNotifications = async (req, res) => {
     const { email, username, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
@@ -798,7 +800,7 @@ exports.handleNotifications = async (req, res) => {
     let type = req.body.type;
     let tweetId = req.body.tweetId;
 
-    let postNotification = await pool.query(
+    let postNotification = await client.query(
       "insert into notifications (type, recipient, sender, created_at, tweetid) values ($1, $2, $3, $4, $5)",
       [type, recipient, sender, new Date(), tweetId]
     );
@@ -817,12 +819,12 @@ exports.handleMarkNotifications = async (req, res) => {
     const { email, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
-    let username = await pool.query(
+    let username = await client.query(
       "select username from users where email = $1",
       [email]
     );
@@ -831,14 +833,14 @@ exports.handleMarkNotifications = async (req, res) => {
 
     let updateNotifications = await Promise.all(
       unreadNotification.map((x) => {
-        return pool.query(
+        return client.query(
           "update notifications set read = true where id = $1 ",
           [x]
         );
       })
     );
 
-    // let output = await pool.query(
+    // let output = await client.query(
     //   "select * from notifications where recipient = $1 order by created_at asc",
     //   [username.rows[0].username]
     // );
@@ -859,14 +861,14 @@ exports.deleteNotifications = async (req, res) => {
     const { email, password, user_id } = decoded.jwtUser;
 
     //grab loggedin user user_id
-    let userId = await pool.query(
+    let userId = await client.query(
       "select user_id from users where email = $1",
       [email]
     );
 
     const id = req.body.tweetId;
 
-    await pool.query("delete from notifications where tweetid = $1", [id]);
+    await client.query("delete from notifications where tweetid = $1", [id]);
 
     res.json("deleted Notification");
   } catch {
@@ -881,7 +883,7 @@ exports.getAllUsers = async (req, res) => {
     var decoded = jwt.verify(req.token, "secretKey");
     const { email, password, user_id } = decoded.jwtUser;
 
-    const allUsers = await pool.query("select * from users");
+    const allUsers = await client.query("select * from users");
 
     res.json(allUsers.rows);
   } catch {

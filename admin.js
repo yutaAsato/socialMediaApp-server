@@ -2,7 +2,9 @@ require("dotenv").config();
 
 const knex = require("knex");
 const Pool = require("pg").Pool;
+const { Client } = require("pg");
 
+let client;
 let pool;
 let db;
 
@@ -19,17 +21,35 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
   // //   },
   // // });
 
-  pool = new Pool({
+  // pool = new Pool({
+  //   host: "127.0.0.1",
+  //   user: "postgres",
+  //   // password: process.env.PASSWORD,
+  //   password: process.env.PASSWORD,
+  //   port: 5432,
+  //   database: "socialmedia",
+  // });
+
+  client = new Client({
     host: "127.0.0.1",
     user: "postgres",
+    // password: process.env.PASSWORD,
     password: process.env.PASSWORD,
     port: 5432,
     database: "socialmedia",
   });
 } else {
-  pool = new Pool({
+  client = new Client({
     connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
   });
-}
 
-module.exports = { db, pool };
+  // pool = new Pool({
+  //   connectionString: process.env.DATABASE_URL,
+  // });
+}
+client.connect();
+
+module.exports = { db, pool, client };
