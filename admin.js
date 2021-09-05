@@ -29,7 +29,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
 } else {
   pool = new Pool({
     connectionString:
-      "postgres://wdjjyskcleyolm:31ec7208768c4f238525c5ebc7f8ab45d154ca22dfd5f5400f58702bb9b95a70@ec2-54-236-137-173.compute-1.amazonaws.com:5432/d9i94tomfsecqi",
+      "postgres://fubifvdntqcuvp:b17d87e278c43ca67d61bef898a3ec9089adb5008eb0306008e21afdcdff7813@ec2-54-83-137-206.compute-1.amazonaws.com:5432/dbn8qrrfp7nnhs",
     ssl: true,
   });
 }
