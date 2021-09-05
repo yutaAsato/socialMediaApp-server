@@ -28,7 +28,7 @@ if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     port: 5432,
     database: "socialmedia",
   });
-} else if (process.env.NODE_ENV === "production") {
+} else {
   console.log("production");
 
   pool = new Pool({
