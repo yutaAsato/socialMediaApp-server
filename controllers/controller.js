@@ -2,7 +2,7 @@ const { db, pool } = require("../admin");
 
 const jwt = require("jsonwebtoken");
 
-const bcrypt = require("bcrypt-nodejs");
+const bcrypt = require("bcryptjs");
 
 //validator imports
 const { validateLoginData, validateRegisterData } = require("./validators");
