@@ -7,8 +7,8 @@ const helpers = require('./helpers');
 const groupBy = require('lodash/groupBy');
 const first = require('lodash/first');
 const has = require('lodash/has');
-const isObject = require('lodash/isObject');
 const tail = require('lodash/tail');
+const { isObject } = require('../util/is');
 
 function ColumnCompiler(client, tableCompiler, columnBuilder) {
   this.client = client;
@@ -164,7 +164,7 @@ ColumnCompiler.prototype.defaultTo = function (value) {
   ) {
     value = `'${JSON.stringify(value)}'`;
   } else {
-    value = `'${value}'`;
+    value = this.client._escapeBinding(value.toString());
   }
   return `default ${value}`;
 };
