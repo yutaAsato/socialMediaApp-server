@@ -12,6 +12,7 @@ console.log("env", process.env.NODE_ENV);
 
 client = new Client({
   connectionString: process.env.DATABASE_URL,
+  sslmode: process.env.NODE_ENV === "production" ? "require" : "disable",
 });
 
 // if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
