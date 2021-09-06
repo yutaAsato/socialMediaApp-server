@@ -22,13 +22,14 @@ var config = parse('postgres://someuser:somepassword@somehost:381/somedatabase')
 
 The resulting config contains a subset of the following properties:
 
-* `host` - Postgres server hostname or, for UNIX doamain sockets, the socket filename
+* `host` - Postgres server hostname or, for UNIX domain sockets, the socket filename
 * `port` - port on which to connect
 * `user` - User with which to authenticate to the server
 * `password` - Corresponding password
 * `database` - Database name within the server
 * `client_encoding` - string encoding the client will use
 * `ssl`, either a boolean or an object with properties
+  * `rejectUnauthorized`
   * `cert`
   * `key`
   * `ca`
@@ -65,6 +66,10 @@ Query parameters follow a `?` character, including the following special query p
  * `host=<host>` - sets `host` property, overriding the URL's host
  * `encoding=<encoding>` - sets the `client_encoding` property
  * `ssl=1`, `ssl=true`, `ssl=0`, `ssl=false` - sets `ssl` to true or false, accordingly
+ * `sslmode=<sslmode>`
+   * `sslmode=disable` - sets `ssl` to false
+   * `sslmode=no-verify` - sets `ssl` to `{ rejectUnauthorized: false }`
+   * `sslmode=prefer`, `sslmode=require`, `sslmode=verify-ca`, `sslmode=verify-full` - sets `ssl` to true
  * `sslcert=<filename>` - reads data from the given file and includes the result as `ssl.cert`
  * `sslkey=<filename>` - reads data from the given file and includes the result as `ssl.key`
  * `sslrootcert=<filename>` - reads data from the given file and includes the result as `ssl.ca`
